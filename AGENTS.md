@@ -24,7 +24,7 @@ Para el MVP, esto se ejecutará localmente (en un contenedor docker)
 - Todo empaquetado en un contenedor Docker
 - Usar "uv" como gestor de paquetes para python en el contenedor Docker
 - Usar OpenRouter para las llamadas de IA. Una OPENROUTER_API_KEY está en .env en la raíz del proyecto
-- Usar `openai/gpt-oss-120b:free` como modelo
+- Usar `google/gemma-4-26b-a4b-it:free` como modelo
 - Usar base de datos SQLLite local, creando una nueva bd si no existe
 - Scripts de inicio y parada del servidor para Mac, PC, Linux en scripts/
 

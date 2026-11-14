@@ -1,0 +1,30 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: kanban-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  cypress:
+    image: cypress/included:13.13.1
+    container_name: kanban-cypress
+    depends_on:
+      api:
+        condition: service_healthy
+    working_dir: /e2e
+    volumes:
+      - ./frontend:/e2e
+    command: npx cypress run --browser electron --config baseUrl=http://api:8000

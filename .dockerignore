@@ -1,0 +1,9 @@
+.git
+.env
+**/.env*
+**/node_modules
+**/.next
+**/out
+**/__pycache__
+frontend/test-results
+frontend/coverage
