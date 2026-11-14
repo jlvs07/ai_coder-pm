@@ -8,6 +8,10 @@ services:
       - "8000:8000"
     env_file:
       - .env
+    environment:
+      DATABASE_PATH: /data/kanban.db
+    volumes:
+      - kanban_data:/data
     healthcheck:
       test:
         - CMD
@@ -28,3 +32,6 @@ services:
     volumes:
       - ./frontend:/e2e
     command: npx cypress run --browser electron --config baseUrl=http://api:8000
+
+volumes:
+  kanban_data:

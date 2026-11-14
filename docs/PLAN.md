@@ -118,25 +118,26 @@ Criterio de éxito:
 
 ## Fase 6: Backend de persistencia del tablero Kanban
 
-- [ ] Crear la conexión a SQLite en FastAPI.
-- [ ] Crear la base de datos si no existe al arrancar la aplicación.
-- [ ] Diseñar y crear las tablas necesarias para usuarios, columnas y tarjetas.
-- [ ] Añadir endpoints para leer el tablero del usuario autenticado o de pruebas.
-- [ ] Añadir endpoints para crear, actualizar y borrar tarjetas.
-- [ ] Añadir endpoints para renombrar columnas y reordenar tarjetas.
-- [ ] Asegurar la validación básica de entrada y respuestas consistentes.
-- [ ] Ejecutar pruebas unitarias del backend para todas las rutas y casos clave.
+- [x] Crear la conexión a SQLite en FastAPI y activar claves foráneas por conexión.
+- [x] Crear la base de datos y las tablas si no existen al arrancar la aplicación.
+- [x] Crear las tablas aprobadas para usuarios, tableros, columnas y tarjetas.
+- [x] Añadir endpoint para leer el tablero del usuario demo.
+- [x] Añadir endpoints para crear, actualizar y borrar tarjetas.
+- [x] Añadir endpoints para renombrar columnas y reordenar tarjetas entre columnas.
+- [x] Validar entradas y devolver respuestas HTTP consistentes ante recursos inexistentes o datos inválidos.
+- [x] Ejecutar pruebas unitarias del backend para los flujos principales.
 
 Pruebas y validación:
-- `pytest` en `backend/` pasa.
-- Crear una tarjeta funciona correctamente.
-- Actualizar una tarjeta funciona correctamente.
-- Mover o reordenar una tarjeta se persiste en base de datos.
-- Eliminar una tarjeta elimina también su referencia del tablero.
-- Si la base de datos no existe, se crea automáticamente.
+- [x] `pytest` en `backend/`: 5 pruebas pasan sin avisos.
+- [x] Crear, actualizar parcialmente y borrar tarjetas se comprobó en las pruebas y contra el contenedor.
+- [x] Renombrar columna y reordenar/mover tarjetas entre columnas se comprobó en las pruebas y contra el contenedor.
+- [x] El borrado elimina la tarjeta del mapa y de la columna y compacta las posiciones.
+- [x] La base de datos se crea automáticamente en un archivo temporal y en el volumen Docker.
+- [x] Los cambios del tablero sobreviven al reinicio del contenedor mediante el volumen SQLite.
+- [x] La suite Cypress existente sigue pasando: 5 pruebas E2E.
 
 Criterio de éxito:
-- El backend expone la API necesaria para manipular el tablero Kanban persistente y cumple con las pruebas del MVP.
+- [x] Validado: FastAPI proporciona API CRUD y orden persistente para el tablero Kanban con SQLite.
 
 ---
 
