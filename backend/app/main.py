@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from uuid import uuid4
@@ -10,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from app.database import connect_database, initialize_database
+from app.openrouter import MODEL, OpenRouterError, request_completion
 
 
 @asynccontextmanager
@@ -87,6 +89,26 @@ def healthcheck() -> JSONResponse:
 @app.get("/api/hello")
 def hello_api() -> JSONResponse:
     return JSONResponse({"message": "hello from the Kanban backend"})
+
+
+@app.post("/api/ai/connectivity")
+def check_ai_connectivity() -> dict:
+    api_key = os.environ.get("OPENROUTER_API_KEY")
+    if not api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="OPENROUTER_API_KEY is not configured",
+        )
+
+    try:
+        answer = request_completion(
+            api_key,
+            "What is 2 + 2? Reply with only the number.",
+        )
+    except OpenRouterError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+    return {"model": MODEL, "answer": answer}
 
 
 @app.get("/api/boards/{username}")

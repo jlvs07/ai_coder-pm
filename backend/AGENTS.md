@@ -38,6 +38,7 @@ Este directorio contiene el backend FastAPI del MVP. FastAPI sirve la API y, en 
 
 - `GET /health`: estado del servicio.
 - `GET /api/hello`: respuesta JSON de prueba.
+- `POST /api/ai/connectivity`: consulta simple a OpenRouter para comprobar conectividad.
 - `GET /api/boards/{username}`: tablero con la estructura compatible con `BoardData`.
 - `POST /api/boards/{username}/columns/{column_id}/cards`: crear tarjeta.
 - `PATCH /api/boards/{username}/cards/{card_id}`: editar título o detalles.

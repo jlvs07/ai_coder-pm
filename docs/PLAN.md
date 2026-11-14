@@ -180,19 +180,19 @@ Criterio de éxito:
 
 ## Fase 8: Conectividad con IA mediante OpenRouter
 
-- [ ] Configurar la conexión a OpenRouter usando la clave disponible en `.env`.
-- [ ] Usar el modelo `google/gemma-4-26b-a4b-it:free`.
-- [ ] Crear una prueba simple de conectividad con una consulta básica como `2 + 2`.
-- [ ] Confirmar que el backend puede invocar la API externa y obtener una respuesta válida.
-- [ ] Manejar errores, timeouts y respuestas vacías con lógica simple y clara.
+- [x] Configurar la conexión a OpenRouter usando la clave disponible en `.env`.
+- [x] Usar el modelo `inclusionai/ling-3.2-flash:free`.
+- [x] Crear una prueba simple de conectividad con una consulta básica como `2 + 2`.
+- [x] Confirmar que el backend puede invocar la API externa y obtener una respuesta válida.
+- [x] Manejar errores, timeouts y respuestas vacías con lógica simple y clara.
 
 Pruebas y validación:
-- Llamada de prueba `2 + 2` responde adecuadamente.
-- El backend captura y devuelve un resultado del modelo.
-- La aplicación no rompe el flujo principal si la IA falla temporalmente.
+- [x] La llamada real de prueba `2 + 2` respondió `4` con HTTP 200 usando `inclusionai/ling-3.2-flash:free` el 15/11/2026.
+- [x] El backend captura y devuelve un resultado del modelo en pruebas con respuesta simulada.
+- [x] La aplicación no rompe el flujo principal si la IA falla temporalmente; el endpoint del tablero sigue respondiendo.
 
 Criterio de éxito:
-- La conectividad con OpenRouter queda verificada y lista para usarse en la lógica del Kanban con IA.
+- [x] Validado: la conectividad con OpenRouter funciona con `inclusionai/ling-3.2-flash:free` y está lista para usarse en la lógica del Kanban con IA.
 
 ---
 

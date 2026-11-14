@@ -1,9 +1,13 @@
 from __future__ import annotations
 
+import json
+from urllib.error import HTTPError, URLError
+
 import pytest
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app import openrouter
 
 
 @pytest.fixture
@@ -147,3 +151,114 @@ def test_card_changes_survive_a_new_connection(client):
 
     response = client.get("/api/boards/usuario")
     assert response.json()["cards"][created["id"]]["title"] == "Persistent card"
+
+
+def test_ai_connectivity_requires_api_key(client, monkeypatch):
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+
+    response = client.post("/api/ai/connectivity")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == "OPENROUTER_API_KEY is not configured"
+
+
+def test_ai_connectivity_uses_configured_model_and_returns_answer(
+    client, monkeypatch
+):
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
+
+    class FakeResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {"choices": [{"message": {"content": "4"}}]}
+            ).encode()
+
+    captured = {}
+
+    def fake_urlopen(request, timeout):
+        captured["request"] = request
+        captured["timeout"] = timeout
+        return FakeResponse()
+
+    monkeypatch.setattr(openrouter, "urlopen", fake_urlopen)
+
+    response = client.post("/api/ai/connectivity")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "model": "inclusionai/ling-3.2-flash:free",
+        "answer": "4",
+    }
+    assert captured["request"].full_url == openrouter.OPENROUTER_URL
+    assert captured["request"].get_header("Authorization").startswith("Bearer ")
+    assert json.loads(captured["request"].data) == {
+        "model": openrouter.MODEL,
+        "messages": [
+            {
+                "role": "user",
+                "content": "What is 2 + 2? Reply with only the number.",
+            }
+        ],
+    }
+    assert captured["timeout"] == openrouter.REQUEST_TIMEOUT_SECONDS
+
+
+@pytest.mark.parametrize(
+    ("urlopen_error", "expected_detail"),
+    [
+        (
+            HTTPError(openrouter.OPENROUTER_URL, 429, "rate limited", {}, None),
+            "OpenRouter returned HTTP 429",
+        ),
+        (
+            URLError(TimeoutError()),
+            "OpenRouter request timed out",
+        ),
+    ],
+)
+def test_ai_connectivity_reports_upstream_errors(
+    client, monkeypatch, urlopen_error, expected_detail
+):
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
+
+    def fail_urlopen(*args, **kwargs):
+        raise urlopen_error
+
+    monkeypatch.setattr(openrouter, "urlopen", fail_urlopen)
+
+    response = client.post("/api/ai/connectivity")
+
+    assert response.status_code == 502
+    assert response.json()["detail"] == expected_detail
+    assert client.get("/api/boards/usuario").status_code == 200
+
+
+def test_ai_connectivity_rejects_empty_response(client, monkeypatch):
+    monkeypatch.setenv("OPENROUTER_API_KEY", "test-key")
+
+    class EmptyResponse:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *args):
+            return False
+
+        def read(self):
+            return b'{"choices":[{"message":{"content":" "}}]}'
+
+    monkeypatch.setattr(
+        openrouter,
+        "urlopen",
+        lambda *args, **kwargs: EmptyResponse(),
+    )
+
+    response = client.post("/api/ai/connectivity")
+
+    assert response.status_code == 502
+    assert response.json()["detail"] == "OpenRouter returned an empty response"
