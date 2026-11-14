@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "database": "SQLite",
+  "tables": [
+    {
+      "name": "users",
+      "purpose": "One row per application user, allowing multiple users in future versions.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "primary_key": true,
+          "nullable": false
+        },
+        {
+          "name": "username",
+          "type": "TEXT",
+          "unique": true,
+          "nullable": false
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      ]
+    },
+    {
+      "name": "boards",
+      "purpose": "One Kanban board per user.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "primary_key": true,
+          "nullable": false
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "nullable": false,
+          "references": {
+            "table": "users",
+            "column": "id",
+            "on_delete": "CASCADE"
+          }
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "Kanban Studio"
+        },
+        {
+          "name": "created_at",
+          "type": "TEXT",
+          "nullable": false,
+          "default": "CURRENT_TIMESTAMP"
+        }
+      ],
+      "unique_constraints": [
+        ["user_id"]
+      ]
+    },
+    {
+      "name": "columns",
+      "purpose": "Ordered board columns; their titles can be renamed.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "primary_key": true,
+          "nullable": false
+        },
+        {
+          "name": "board_id",
+          "type": "TEXT",
+          "nullable": false,
+          "references": {
+            "table": "boards",
+            "column": "id",
+            "on_delete": "CASCADE"
+          }
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "position",
+          "type": "INTEGER",
+          "nullable": false,
+          "check": "position >= 0"
+        }
+      ],
+      "unique_constraints": [
+        ["board_id", "position"]
+      ]
+    },
+    {
+      "name": "cards",
+      "purpose": "Cards belonging to a column and ordered within that column.",
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "primary_key": true,
+          "nullable": false
+        },
+        {
+          "name": "column_id",
+          "type": "TEXT",
+          "nullable": false,
+          "references": {
+            "table": "columns",
+            "column": "id",
+            "on_delete": "CASCADE"
+          }
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "nullable": false
+        },
+        {
+          "name": "details",
+          "type": "TEXT",
+          "nullable": false,
+          "default": ""
+        },
+        {
+          "name": "position",
+          "type": "INTEGER",
+          "nullable": false,
+          "check": "position >= 0"
+        }
+      ],
+      "unique_constraints": [
+        ["column_id", "position"]
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "from": "users.id",
+      "to": "boards.user_id",
+      "cardinality": "one-to-zero-or-one"
+    },
+    {
+      "from": "boards.id",
+      "to": "columns.board_id",
+      "cardinality": "one-to-many"
+    },
+    {
+      "from": "columns.id",
+      "to": "cards.column_id",
+      "cardinality": "one-to-many"
+    }
+  ],
+  "sqlite_requirements": [
+    "Enable PRAGMA foreign_keys = ON for every database connection.",
+    "Use transactions when applying multi-row board or card-order changes."
+  ]
+}

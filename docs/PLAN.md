@@ -101,18 +101,18 @@ Criterio de éxito:
 
 ## Fase 5: Modelado de la base de datos
 
-- [ ] Definir el esquema de usuarios, columnas, tarjetas y relaciones del tablero Kanban.
-- [ ] Guardar el esquema propuesto en formato JSON dentro de `docs/`.
-- [ ] Documentar el diseño de la base de datos, sus entidades y el enfoque de persistencia para el MVP.
-- [ ] Obtener la aprobación del usuario sobre el esquema final antes de construir la migración o el modelo real.
-- [ ] Preparar la base para soportar múltiples usuarios en una evolución futura, aunque el MVP use un único usuario.
+- [x] Definir la propuesta de esquema de usuarios, tableros, columnas, tarjetas y sus relaciones.
+- [x] Guardar la propuesta en [docs/database-schema.json](./database-schema.json).
+- [x] Documentar las entidades y el enfoque de persistencia en [docs/DATABASE.md](./DATABASE.md).
+- [x] Obtener la aprobación del usuario sobre el esquema final antes de construir la migración o el modelo real.
+- [x] Preparar la propuesta para soportar múltiples usuarios en una evolución futura, aunque el MVP use un único usuario.
 
 Pruebas y validación:
-- Revisar que el JSON de esquema es coherente y cubre el flujo del Kanban completo.
-- Confirmar que el modelo soporta columnas, tarjetas y su relación con el usuario propietario.
+- [x] Validar que el archivo JSON es sintácticamente correcto y cubre el modelo Kanban.
+- [x] Confirmar que el modelo relaciona usuarios con un tablero, tableros con columnas y columnas con tarjetas, incluyendo el orden necesario.
 
 Criterio de éxito:
-- Existe un esquema claro y aprobado que sirva de base para el backend y para la persistencia del tablero.
+- [x] Validado: el usuario aprobó el esquema documentado; ya puede usarse como base para implementar la persistencia en la fase 6.
 
 ---
 
