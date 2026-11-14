@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import clsx from "clsx";
 import { useDroppable } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
@@ -8,9 +11,20 @@ import { NewCardForm } from "@/components/NewCardForm";
 type KanbanColumnProps = {
   column: Column;
   cards: Card[];
-  onRename: (columnId: string, title: string) => void;
-  onAddCard: (columnId: string, title: string, details: string) => void;
-  onDeleteCard: (columnId: string, cardId: string) => void;
+  onRename: (columnId: string, title: string) => Promise<boolean>;
+  onAddCard: (
+    columnId: string,
+    title: string,
+    details: string
+  ) => Promise<boolean>;
+  onDeleteCard: (columnId: string, cardId: string) => Promise<void>;
+  onUpdateCard: (
+    cardId: string,
+    title: string,
+    details: string
+  ) => Promise<boolean>;
+  activeCardId: string | null;
+  dropIndicatorIndex: number | null;
 };
 
 export const KanbanColumn = ({
@@ -19,8 +33,28 @@ export const KanbanColumn = ({
   onRename,
   onAddCard,
   onDeleteCard,
+  onUpdateCard,
+  activeCardId,
+  dropIndicatorIndex,
 }: KanbanColumnProps) => {
   const { setNodeRef, isOver } = useDroppable({ id: column.id });
+  const [titleDraft, setTitleDraft] = useState(column.title);
+  const activeCardIndex = activeCardId
+    ? column.cardIds.indexOf(activeCardId)
+    : -1;
+  const indicatorSlot =
+    dropIndicatorIndex === null
+      ? null
+      : dropIndicatorIndex +
+        (activeCardIndex >= 0 && activeCardIndex < dropIndicatorIndex ? 1 : 0);
+
+  const dropIndicator = (
+    <div
+      aria-hidden="true"
+      className="h-1 rounded-full bg-[var(--primary-blue)] shadow-[0_0_10px_rgba(32,157,215,0.8)]"
+      data-testid="drop-indicator"
+    />
+  );
 
   return (
     <section
@@ -40,8 +74,18 @@ export const KanbanColumn = ({
             </span>
           </div>
           <input
-            value={column.title}
-            onChange={(event) => onRename(column.id, event.target.value)}
+            value={titleDraft}
+            onChange={(event) => setTitleDraft(event.target.value)}
+            onBlur={async () => {
+              const nextTitle = titleDraft.trim();
+              if (!nextTitle || nextTitle === column.title) {
+                setTitleDraft(column.title);
+                return;
+              }
+              if (!(await onRename(column.id, nextTitle))) {
+                setTitleDraft(column.title);
+              }
+            }}
             className="mt-3 w-full bg-transparent font-display text-lg font-semibold text-[var(--navy-dark)] outline-none"
             aria-label="Column title"
           />
@@ -49,19 +93,29 @@ export const KanbanColumn = ({
       </div>
       <div className="mt-4 flex flex-1 flex-col gap-3">
         <SortableContext items={column.cardIds} strategy={verticalListSortingStrategy}>
-          {cards.map((card) => (
-            <KanbanCard
-              key={card.id}
-              card={card}
-              onDelete={(cardId) => onDeleteCard(column.id, cardId)}
-            />
-          ))}
+          {cards.length === 0 ? (
+            <div className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-[var(--stroke)] px-3 py-6 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gray-text)]">
+              <div className="w-full space-y-3">
+                {indicatorSlot === 0 && dropIndicator}
+                <span>Drop a card here</span>
+              </div>
+            </div>
+          ) : (
+            <>
+              {cards.map((card, index) => (
+                <div className="contents" key={card.id}>
+                  {indicatorSlot === index && dropIndicator}
+                  <KanbanCard
+                    card={card}
+                    onDelete={(cardId) => onDeleteCard(column.id, cardId)}
+                    onUpdate={onUpdateCard}
+                  />
+                </div>
+              ))}
+              {indicatorSlot === cards.length && dropIndicator}
+            </>
+          )}
         </SortableContext>
-        {cards.length === 0 && (
-          <div className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-[var(--stroke)] px-3 py-6 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gray-text)]">
-            Drop a card here
-          </div>
-        )}
       </div>
       <NewCardForm
         onAdd={(title, details) => onAddCard(column.id, title, details)}

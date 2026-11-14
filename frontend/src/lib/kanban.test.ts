@@ -4,6 +4,7 @@ describe("moveCard", () => {
   const baseColumns: Column[] = [
     { id: "col-a", title: "A", cardIds: ["card-1", "card-2"] },
     { id: "col-b", title: "B", cardIds: ["card-3"] },
+    { id: "col-empty", title: "Empty", cardIds: [] },
   ];
 
   it("reorders cards in the same column", () => {
@@ -21,5 +22,22 @@ describe("moveCard", () => {
     const result = moveCard(baseColumns, "card-1", "col-b");
     expect(result[0].cardIds).toEqual(["card-2"]);
     expect(result[1].cardIds).toEqual(["card-3", "card-1"]);
+  });
+
+  it("moves a card into an empty column", () => {
+    const result = moveCard(baseColumns, "card-1", "col-empty");
+    expect(result[0].cardIds).toEqual(["card-2"]);
+    expect(result[2].cardIds).toEqual(["card-1"]);
+  });
+
+  it("places a card after the last card when dropped below it", () => {
+    const result = moveCard(baseColumns, "card-1", "card-3", "after");
+    expect(result[0].cardIds).toEqual(["card-2"]);
+    expect(result[1].cardIds).toEqual(["card-3", "card-1"]);
+  });
+
+  it("reorders a card after another card in the same column", () => {
+    const result = moveCard(baseColumns, "card-1", "card-2", "after");
+    expect(result[0].cardIds).toEqual(["card-2", "card-1"]);
   });
 });

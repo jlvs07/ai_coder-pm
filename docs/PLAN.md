@@ -143,20 +143,38 @@ Criterio de éxito:
 
 ## Fase 7: Integración Frontend + Backend
 
-- [ ] Conectar el frontend con la API del backend para cargar el tablero real.
-- [ ] Sustituir el estado local del componente por datos persistidos desde la API.
-- [ ] Mantener la experiencia del tablero con renombrado, arrastre, edición y creación de tarjetas.
-- [ ] Manejar errores de red y estados de carga básicos.
-- [ ] Validar que los cambios en el tablero se reflejan de forma persistente y reproducible.
-- [ ] Ejecutar pruebas de integración para la interacción frontend-backend.
+- [x] Conectar el frontend con la API del backend para cargar el tablero persistido del usuario demo.
+- [x] Usar el estado cargado desde la API como fuente de datos del tablero, sin fallback silencioso a datos de demostración si falla la carga.
+- [x] Mantener renombrado de columnas, movimiento, edición, creación y borrado de tarjetas conectados a sus endpoints.
+- [x] Mostrar estados de carga y errores de carga o guardado.
+- [x] Aplicar en la interfaz los cambios persistidos solo después de que la API confirme el guardado.
+- [x] Validar la persistencia tras recargar, incluido el orden de tarjetas y sus columnas.
+- [x] Ejecutar pruebas unitarias, compilación y E2E para la integración frontend-backend.
 
 Pruebas y validación:
-- El tablero se carga desde la API.
-- Los cambios realizados en la UI se guardan y se refrescan.
-- La aplicación sigue funcionando con la base de datos local.
+- [x] El tablero se carga desde la API.
+- [x] La creación, edición, borrado y renombrado se guardan en la API; las pruebas E2E verifican persistencia tras recargar.
+- [x] El movimiento de tarjetas se guarda mediante el endpoint de orden y se conserva al recargar.
+- [x] La aplicación sigue funcionando con la base de datos local.
+- [x] `npm test`: 14 pruebas unitarias pasan.
+- [x] `npm run lint` y `npm run build` pasan.
+- [x] Cypress en contenedor: 7 pruebas E2E pasan.
+- [x] Se verificó manualmente el arrastre con ratón desde cualquier zona de la tarjeta y la persistencia tras recargar.
+- [x] Se verificó manualmente que se puede soltar una tarjeta en una columna vacía.
+- [x] Se verificó manualmente que soltar encima o debajo de otra tarjeta determina correctamente la posición, incluido el final de la lista.
+- [x] Durante el arrastre se muestra una línea resaltada en la posición prevista de inserción.
+- [x] El movimiento con teclado sigue disponible como alternativa accesible.
+
+Decisiones de diseño:
+- El frontend estático y FastAPI comparten origen; el cliente usa rutas relativas `/api/...` y no requiere CORS.
+- La API es la fuente de verdad: las mutaciones actualizan la UI solo tras una respuesta satisfactoria y los errores se muestran explícitamente.
+- El sensor de puntero permite iniciar el arrastre desde la tarjeta; mientras se edita una tarjeta, su arrastre queda desactivado para no interferir con los controles de edición.
+- La detección durante el arrastre prioriza el elemento bajo el puntero. La mitad vertical de la tarjeta objetivo determina si la inserción es anterior o posterior; la columna vacía permite insertar en el índice cero y la propia columna sirve como destino al final de la lista.
+- Una línea azul resaltada marca el punto de inserción calculado. El sensor de teclado con coordenadas sortables se conserva además del sensor de puntero.
+- El usuario confirmó la validación de la fase 7 el 14/11/2026.
 
 Criterio de éxito:
-- El tablero funciona como una aplicación persistente y no solo como demo estática.
+- [x] Validado: el tablero funciona como una aplicación persistente y no solo como demo estática.
 
 ---
 
