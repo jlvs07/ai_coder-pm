@@ -152,6 +152,13 @@ describe("KanbanBoard", () => {
 
     expect(await screen.findByText("AI updated roadmap")).toBeVisible();
     expect(await screen.findByText("I will update that card.")).toBeVisible();
+    await user.click(
+      screen.getByRole("button", { name: "Edit AI updated roadmap" })
+    );
+    expect(screen.getByRole("textbox", { name: "Card title" })).toHaveValue(
+      "AI updated roadmap"
+    );
+    await user.click(screen.getByRole("button", { name: "Cancel" }));
     expect(kanbanApi.sendBoardChat).toHaveBeenNthCalledWith(
       1,
       "Rename the roadmap card",

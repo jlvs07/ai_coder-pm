@@ -17,15 +17,22 @@ Este directorio contiene el backend FastAPI del MVP. FastAPI sirve la API y, en 
 - SQLite
 - uv como gestor de paquetes
 
-## Estructura prevista
+## Estructura
 
-- `app/main.py`: aplicación principal de FastAPI.
+- `app/main.py`: creación de la aplicación, CORS, routers y montaje del frontend estático.
+- `app/api/`: routers HTTP (`system.py`, `boards.py`, `ai.py`) y modelos de petición (`schemas.py`).
+- `app/boards.py`: lectura y mutaciones de tableros, columnas, tarjetas y orden.
+- `app/board_updates.py`: aplicación transaccional de acciones estructuradas de la IA.
+- `app/ai.py`: prompt del sistema, construcción de mensajes y parseo de respuestas.
+- `app/ai_actions.py`: modelos Pydantic de historial y acciones de la IA.
 - `app/database.py`: conexión, esquema SQLite e inicialización del tablero demo.
-- `app/__init__.py`: marca el paquete de la app.
+- `app/openrouter.py`: cliente HTTP de OpenRouter.
+- `app/__init__.py` y `app/api/__init__.py`: marcan los paquetes.
 - `app/static/`: salida estática de Next.js, copiada a la imagen Docker durante el build.
-- `pyproject.toml`: configuración del proyecto y dependencias.
+- `pyproject.toml` y `uv.lock`: dependencias fijadas del proyecto.
 - `Dockerfile`: build multi-stage del frontend estático y la imagen FastAPI final.
-- `tests/test_api.py`: pruebas de API y persistencia SQLite.
+- `tests/conftest.py`: fixture compartido de cliente y base temporal.
+- `tests/test_system.py`, `tests/test_boards.py`, `tests/test_ai.py`: pruebas por dominio.
 
 ## Principios para este backend
 
@@ -48,4 +55,4 @@ Este directorio contiene el backend FastAPI del MVP. FastAPI sirve la API y, en 
 - `PUT /api/boards/{username}/cards/order`: actualizar orden y columna de todas las tarjetas del tablero.
 - `GET /` y archivos estáticos: app Next.js exportada; en ejecución local sin export se muestra una página de prueba.
 
-El nombre de usuario identifica el tablero en esta API de pruebas; no es una verificación de autenticación. Ejecutar las pruebas con `uv run --group dev pytest` desde `backend/`. El contenedor guarda SQLite en `/data/kanban.db` dentro del volumen `kanban_data`.
+El nombre de usuario identifica el tablero en esta API de pruebas; no es una verificación de autenticación. El contenedor guarda SQLite en `/data/kanban.db` dentro del volumen `kanban_data`. En la imagen Docker se usa `uv` con `uv.lock` y el comando `uv run --group dev pytest` desde `backend/`. Si `uv` no está disponible en el host, usar `python3 -m pytest` con las dependencias instaladas con pip.

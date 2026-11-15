@@ -105,7 +105,11 @@ export const KanbanCard = ({ card, onDelete, onUpdate }: KanbanCardProps) => {
           <div className="flex shrink-0 flex-col items-end gap-1">
             <button
               type="button"
-              onClick={() => setIsEditing(true)}
+              onClick={() => {
+                setTitle(card.title);
+                setDetails(card.details);
+                setIsEditing(true);
+              }}
               className="rounded-full border border-transparent px-2 py-1 text-xs font-semibold text-[var(--primary-blue)] transition hover:border-[var(--stroke)]"
               aria-label={`Edit ${card.title}`}
             >

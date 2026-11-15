@@ -22,7 +22,7 @@ Las claves foráneas eliminan en cascada los datos dependientes al borrar usuari
 - La lectura ordena columnas y tarjetas por `position` y devuelve la forma `BoardData` (`columns` con `cardIds` y `cards` indexadas por id).
 - El reordenamiento cambia la columna y posición de tarjetas en una transacción.
 
-La inicialización y la API están implementadas en `backend/app/database.py` y `backend/app/main.py`. En Docker, la base se guarda en el volumen persistente `kanban_data` en `/data/kanban.db`; fuera de Docker, la ruta predeterminada es `backend/data/kanban.db`.
+La inicialización está en `backend/app/database.py`; la API se reparte entre `backend/app/api/` y `backend/app/boards.py`, con las acciones de IA en `backend/app/board_updates.py`. En Docker, la base se guarda en el volumen persistente `kanban_data` en `/data/kanban.db`; fuera de Docker, la ruta predeterminada es `backend/data/kanban.db`.
 
 ## API disponible
 

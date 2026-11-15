@@ -51,9 +51,7 @@ describe("Kanban board", () => {
     },
   };
 
-  beforeEach(() => {
-    cy.viewport(1440, 1200);
-    cy.clearLocalStorage();
+  const resetBoard = () => {
     cy.request("/api/boards/usuario").then(
       ({
         body,
@@ -63,34 +61,44 @@ describe("Kanban board", () => {
           columns: { id: string; title: string }[];
         };
       }) => {
-      Object.keys(body.cards)
-        .filter((cardId) => !starterCardIds.includes(cardId))
-        .forEach((cardId) => {
-          cy.request("DELETE", `/api/boards/usuario/cards/${cardId}`);
-        });
-      const starterColumnTitles: Record<string, string> = {
-        "col-backlog": "Backlog",
-        "col-discovery": "Discovery",
-        "col-progress": "In Progress",
-        "col-review": "Review",
-        "col-done": "Done",
-      };
-      body.columns.forEach((column) => {
-        const title = starterColumnTitles[column.id];
-        if (title && column.title !== title) {
-          cy.request("PATCH", `/api/boards/usuario/columns/${column.id}`, {
-            title,
+        Object.keys(body.cards)
+          .filter((cardId) => !starterCardIds.includes(cardId))
+          .forEach((cardId) => {
+            cy.request("DELETE", `/api/boards/usuario/cards/${cardId}`);
           });
-        }
-      });
-      Object.entries(starterCards).forEach(([cardId, card]) => {
-        cy.request("PATCH", `/api/boards/usuario/cards/${cardId}`, card);
-      });
-      cy.request("PUT", "/api/boards/usuario/cards/order", {
-        columns: starterColumns,
-      });
+        const starterColumnTitles: Record<string, string> = {
+          "col-backlog": "Backlog",
+          "col-discovery": "Discovery",
+          "col-progress": "In Progress",
+          "col-review": "Review",
+          "col-done": "Done",
+        };
+        body.columns.forEach((column) => {
+          const title = starterColumnTitles[column.id];
+          if (title && column.title !== title) {
+            cy.request("PATCH", `/api/boards/usuario/columns/${column.id}`, {
+              title,
+            });
+          }
+        });
+        Object.entries(starterCards).forEach(([cardId, card]) => {
+          cy.request("PATCH", `/api/boards/usuario/cards/${cardId}`, card);
+        });
+        cy.request("PUT", "/api/boards/usuario/cards/order", {
+          columns: starterColumns,
+        });
       }
     );
+  };
+
+  beforeEach(() => {
+    cy.viewport(1440, 1200);
+    cy.clearLocalStorage();
+    resetBoard();
+  });
+
+  afterEach(() => {
+    resetBoard();
   });
 
   const login = () => {
@@ -232,6 +240,61 @@ describe("Kanban board", () => {
     });
     cy.contains("AI-created task").should("be.visible");
     cy.contains("I added the task to Backlog.").should("be.visible");
+  });
+
+  it("moves a card with pointer drag and persists its new column and order", () => {
+    login();
+    cy.intercept("PUT", "/api/boards/usuario/cards/order").as("saveOrder");
+
+    cy.get('[data-testid="card-card-2"]').then(($card) => {
+      const cardRect = $card[0].getBoundingClientRect();
+      const startX = Math.round(cardRect.left + 20);
+      const startY = Math.round(cardRect.top + 20);
+      cy.get('[data-testid="card-card-4"]').then(($target) => {
+        const targetRect = $target[0].getBoundingClientRect();
+        const endX = Math.round(targetRect.left + targetRect.width / 2);
+        const endY = Math.round(targetRect.top + targetRect.height / 2);
+
+        cy.wrap($card)
+          .trigger("pointerdown", {
+            force: true,
+            isPrimary: true,
+            button: 0,
+            clientX: startX,
+            clientY: startY,
+          })
+          .wait(50)
+          .trigger("pointermove", {
+            force: true,
+            isPrimary: true,
+            button: 0,
+            buttons: 1,
+            clientX: startX + 10,
+            clientY: startY + 10,
+          })
+          .wait(50)
+          .trigger("pointermove", {
+            force: true,
+            isPrimary: true,
+            button: 0,
+            buttons: 1,
+            clientX: endX,
+            clientY: endY,
+          })
+          .wait(50)
+          .trigger("pointerup", {
+            force: true,
+            isPrimary: true,
+            button: 0,
+            clientX: endX,
+            clientY: endY,
+          });
+      });
+    });
+    cy.wait("@saveOrder").its("response.statusCode").should("eq", 200);
+    cy.reload();
+    cy.get('[data-testid="column-col-progress"] [data-testid="card-card-2"]')
+      .should("be.visible");
   });
 
   it("moves a card with the keyboard and persists its new column and order", () => {
