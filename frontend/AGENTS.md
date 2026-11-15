@@ -5,6 +5,7 @@ Este directorio contiene el frontend MVP de la aplicación de gestión de proyec
 ## Objetivo del frontend actual
 
 - Renderizar un tablero Kanban con columnas fijas y tarjetas editables.
+- Mostrar un chat lateral de IA que puede operar sobre el tablero y sincroniza los cambios confirmados por la API.
 - Exigir el login simulado antes de mostrar el tablero.
 - Permitir cerrar sesión; la sesión demo se conserva en `localStorage`.
 - Permitir renombrar columnas.
@@ -25,6 +26,7 @@ Este directorio contiene el frontend MVP de la aplicación de gestión de proyec
 
 - `src/app/page.tsx`: punto de entrada de la vista principal; renderiza `KanbanBoard`.
 - `src/components/KanbanBoard.tsx`: contenedor principal del tablero. Mantiene el estado del tablero, maneja drag & drop, creación y eliminación de tarjetas, y renombrado de columnas.
+- `src/components/AIChatPanel.tsx`: panel lateral de chat, historial de conversación de la sesión, estado de envío y errores.
 - `src/components/SessionGate.tsx`: protege la vista del tablero con el login local simulado (`usuario` / `contraseña`) y controla el cierre de sesión.
 - `src/components/SessionGate.test.tsx`: pruebas unitarias de acceso, credenciales incorrectas, persistencia local y cierre de sesión.
 - `src/components/KanbanColumn.tsx`: representa cada columna del Kanban y contiene la UI de edición y creación de tarjetas.
@@ -65,6 +67,7 @@ La data inicial contiene 5 columnas y varias tarjetas de ejemplo.
 - Eliminar una tarjeta elimina la referencia de la columna y la entrada de la tarjeta.
 - El movimiento entre columnas y reordenación dentro de una misma columna se resuelve con `moveCard`.
 - El drag & drop usa `@dnd-kit` con `PointerSensor` y `closestCorners`.
+- El chat envía el mensaje y el historial al backend; sustituye el estado local con el tablero devuelto solo después de una respuesta satisfactoria.
 
 ## Convenciones de desarrollo
 

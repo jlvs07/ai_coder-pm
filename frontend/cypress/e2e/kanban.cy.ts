@@ -202,6 +202,38 @@ describe("Kanban board", () => {
     cy.contains("Updated roadmap").should("be.visible");
   });
 
+  it("sends a chat request and applies the returned board update", () => {
+    cy.request("/api/boards/usuario").then(({ body }) => {
+      const updatedBoard = structuredClone(body);
+      updatedBoard.cards["card-ai-e2e"] = {
+        id: "card-ai-e2e",
+        title: "AI-created task",
+        details: "Added by the assistant",
+      };
+      updatedBoard.columns[0].cardIds.push("card-ai-e2e");
+      cy.intercept("POST", "/api/boards/usuario/chat", {
+        statusCode: 200,
+        body: {
+          reply: "I added the task to Backlog.",
+          board: updatedBoard,
+        },
+      }).as("aiChat");
+    });
+
+    login();
+    cy.get("#ai-chat-message").type("Create a task in Backlog");
+    cy.contains("button", "Send message").click();
+
+    cy.wait("@aiChat").then(({ request }) => {
+      expect(request.body).to.deep.equal({
+        message: "Create a task in Backlog",
+        history: [],
+      });
+    });
+    cy.contains("AI-created task").should("be.visible");
+    cy.contains("I added the task to Backlog.").should("be.visible");
+  });
+
   it("moves a card with the keyboard and persists its new column and order", () => {
     login();
 

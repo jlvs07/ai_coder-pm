@@ -11,6 +11,7 @@ vi.mock("@/lib/kanbanApi", () => ({
   getBoard: vi.fn(),
   renameColumn: vi.fn(),
   saveCardOrder: vi.fn(),
+  sendBoardChat: vi.fn(),
   updateCard: vi.fn(),
 }));
 
@@ -31,6 +32,10 @@ describe("KanbanBoard", () => {
       async (cardId, title, details) => ({ id: cardId, title, details })
     );
     vi.mocked(kanbanApi.saveCardOrder).mockResolvedValue({ status: "ok" });
+    vi.mocked(kanbanApi.sendBoardChat).mockResolvedValue({
+      reply: "I can help with your board.",
+      board: null,
+    });
   });
 
   it("loads the board from the API and renders five columns", async () => {
@@ -120,5 +125,71 @@ describe("KanbanBoard", () => {
       "Updated roadmap",
       "Draft quarterly themes with impact statements and metrics."
     );
+  });
+
+  it("sends chat history and synchronizes AI board changes", async () => {
+    const user = userEvent.setup();
+    const updatedBoard = structuredClone(initialData);
+    updatedBoard.cards["card-1"].title = "AI updated roadmap";
+    vi.mocked(kanbanApi.sendBoardChat)
+      .mockResolvedValueOnce({
+        reply: "I will update that card.",
+        board: updatedBoard,
+      })
+      .mockResolvedValueOnce({
+        reply: "The update is complete.",
+        board: null,
+      });
+
+    render(<KanbanBoard />);
+    await screen.findByText("Align roadmap themes");
+    const input = screen.getByRole("textbox", {
+      name: "Message the AI assistant",
+    });
+
+    await user.type(input, "Rename the roadmap card");
+    await user.click(screen.getByRole("button", { name: "Send message" }));
+
+    expect(await screen.findByText("AI updated roadmap")).toBeVisible();
+    expect(await screen.findByText("I will update that card.")).toBeVisible();
+    expect(kanbanApi.sendBoardChat).toHaveBeenNthCalledWith(
+      1,
+      "Rename the roadmap card",
+      []
+    );
+
+    await user.type(input, "What changed?");
+    await user.click(screen.getByRole("button", { name: "Send message" }));
+
+    expect(await screen.findByText("The update is complete.")).toBeVisible();
+    expect(kanbanApi.sendBoardChat).toHaveBeenNthCalledWith(
+      2,
+      "What changed?",
+      [
+        { role: "user", content: "Rename the roadmap card" },
+        { role: "assistant", content: "I will update that card." },
+      ]
+    );
+  });
+
+  it("shows chat errors without changing the displayed board", async () => {
+    const user = userEvent.setup();
+    vi.mocked(kanbanApi.sendBoardChat).mockRejectedValue(
+      new Error("OpenRouter unavailable")
+    );
+
+    render(<KanbanBoard />);
+    await screen.findByText("Align roadmap themes");
+    await user.type(
+      screen.getByRole("textbox", { name: "Message the AI assistant" }),
+      "Move a card"
+    );
+    await user.click(screen.getByRole("button", { name: "Send message" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "OpenRouter unavailable"
+    );
+    expect(screen.getByText("Align roadmap themes")).toBeVisible();
+    expect(screen.queryByText("AI updated roadmap")).not.toBeInTheDocument();
   });
 });

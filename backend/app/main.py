@@ -10,6 +10,15 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from app.ai import (
+    AIResponseError,
+    BoardChatRequest,
+    BoardNotFoundError,
+    apply_board_update,
+    build_chat_messages,
+    parse_ai_response,
+)
+from app.boards import read_board
 from app.database import connect_database, initialize_database
 from app.openrouter import MODEL, OpenRouterError, request_completion
 
@@ -103,7 +112,12 @@ def check_ai_connectivity() -> dict:
     try:
         answer = request_completion(
             api_key,
-            "What is 2 + 2? Reply with only the number.",
+            [
+                {
+                    "role": "user",
+                    "content": "What is 2 + 2? Reply with only the number.",
+                }
+            ],
         )
     except OpenRouterError as error:
         raise HTTPException(status_code=502, detail=str(error)) from error
@@ -111,64 +125,54 @@ def check_ai_connectivity() -> dict:
     return {"model": MODEL, "answer": answer}
 
 
+@app.post("/api/boards/{username}/chat")
+def board_chat(username: str, payload: BoardChatRequest) -> dict:
+    api_key = os.environ.get("OPENROUTER_API_KEY")
+    if not api_key:
+        raise HTTPException(
+            status_code=503,
+            detail="OPENROUTER_API_KEY is not configured",
+        )
+
+    with connect_database() as connection:
+        result = read_board(connection, username)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Board not found")
+    _, board = result
+
+    try:
+        completion = request_completion(
+            api_key,
+            build_chat_messages(board, payload),
+        )
+        ai_response = parse_ai_response(completion)
+    except OpenRouterError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+    except AIResponseError as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+    updated_board = None
+    if ai_response.board_update and ai_response.board_update.actions:
+        try:
+            updated_board = apply_board_update(
+                username,
+                ai_response.board_update,
+            )
+        except BoardNotFoundError as error:
+            raise HTTPException(status_code=404, detail="Board not found") from error
+        except AIResponseError as error:
+            raise HTTPException(status_code=502, detail=str(error)) from error
+
+    return {"reply": ai_response.reply, "board": updated_board}
+
+
 @app.get("/api/boards/{username}")
 def get_board(username: str) -> dict:
     with connect_database() as connection:
-        board = connection.execute(
-            """
-            SELECT boards.id
-            FROM boards
-            JOIN users ON users.id = boards.user_id
-            WHERE users.username = ?
-            """,
-            (username,),
-        ).fetchone()
-        if board is None:
-            raise HTTPException(status_code=404, detail="Board not found")
-
-        columns = connection.execute(
-            """
-            SELECT id, title
-            FROM columns
-            WHERE board_id = ?
-            ORDER BY position
-            """,
-            (board["id"],),
-        ).fetchall()
-        cards = connection.execute(
-            """
-            SELECT cards.id, cards.title, cards.details, cards.column_id
-            FROM cards
-            JOIN columns ON columns.id = cards.column_id
-            WHERE columns.board_id = ?
-            ORDER BY columns.position, cards.position
-            """,
-            (board["id"],),
-        ).fetchall()
-
-    cards_by_id = {
-        card["id"]: {
-            "id": card["id"],
-            "title": card["title"],
-            "details": card["details"],
-        }
-        for card in cards
-    }
-    card_ids_by_column = {column["id"]: [] for column in columns}
-    for card in cards:
-        card_ids_by_column[card["column_id"]].append(card["id"])
-
-    return {
-        "columns": [
-            {
-                "id": column["id"],
-                "title": column["title"],
-                "cardIds": card_ids_by_column[column["id"]],
-            }
-            for column in columns
-        ],
-        "cards": cards_by_id,
-    }
+        result = read_board(connection, username)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Board not found")
+    return result[1]
 
 
 @app.post("/api/boards/{username}/columns/{column_id}/cards", status_code=201)

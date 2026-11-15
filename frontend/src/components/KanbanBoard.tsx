@@ -19,6 +19,7 @@ import {
 import { sortableKeyboardCoordinates } from "@dnd-kit/sortable";
 import { KanbanColumn } from "@/components/KanbanColumn";
 import { KanbanCardPreview } from "@/components/KanbanCardPreview";
+import { AIChatPanel } from "@/components/AIChatPanel";
 import { moveCard, type BoardData } from "@/lib/kanban";
 import {
   createCard,
@@ -26,7 +27,9 @@ import {
   getBoard,
   renameColumn,
   saveCardOrder,
+  sendBoardChat,
   updateCard,
+  type ChatMessage,
 } from "@/lib/kanbanApi";
 
 type DropTarget = {
@@ -371,6 +374,14 @@ export const KanbanBoard = () => {
     });
   };
 
+  const handleAIChat = async (message: string, history: ChatMessage[]) => {
+    const response = await sendBoardChat(message, history);
+    if (response.board) {
+      setBoard(response.board);
+    }
+    return response;
+  };
+
   if (isLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center text-[var(--navy-dark)]">
@@ -403,7 +414,7 @@ export const KanbanBoard = () => {
       <div className="pointer-events-none absolute left-0 top-0 h-[420px] w-[420px] -translate-x-1/3 -translate-y-1/3 rounded-full bg-[radial-gradient(circle,_rgba(32,157,215,0.25)_0%,_rgba(32,157,215,0.05)_55%,_transparent_70%)]" />
       <div className="pointer-events-none absolute bottom-0 right-0 h-[520px] w-[520px] translate-x-1/4 translate-y-1/4 rounded-full bg-[radial-gradient(circle,_rgba(117,57,145,0.18)_0%,_rgba(117,57,145,0.05)_55%,_transparent_75%)]" />
 
-      <main className="relative mx-auto flex min-h-screen max-w-[1500px] flex-col gap-10 px-6 pb-16 pt-12">
+      <main className="relative mx-auto flex min-h-screen max-w-[1900px] flex-col gap-10 px-6 pb-16 pt-12">
         {error && (
           <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
             {error}
@@ -463,23 +474,30 @@ export const KanbanBoard = () => {
             overRef.current = null;
           }}
         >
-          <section className="grid gap-6 lg:grid-cols-5">
-            {board.columns.map((column) => (
-              <KanbanColumn
-                key={`${column.id}-${column.title}`}
-                column={column}
-                cards={column.cardIds.map((cardId) => board.cards[cardId])}
-                onRename={handleRenameColumn}
-                onAddCard={handleAddCard}
-                onDeleteCard={handleDeleteCard}
-                onUpdateCard={handleUpdateCard}
-                activeCardId={activeCardId}
-                dropIndicatorIndex={
-                  dropTarget?.columnId === column.id ? dropTarget.index : null
-                }
-              />
-            ))}
-          </section>
+          <div className="grid items-stretch gap-6 2xl:grid-cols-[minmax(0,1fr)_320px]">
+            <section className="min-w-0 overflow-x-auto pb-2">
+              <div className="grid min-w-[280px] gap-6 sm:min-w-[520px] sm:grid-cols-2 lg:min-w-[1000px] lg:grid-cols-5 2xl:min-w-[1100px]">
+                {board.columns.map((column) => (
+                  <KanbanColumn
+                    key={`${column.id}-${column.title}`}
+                    column={column}
+                    cards={column.cardIds.map((cardId) => board.cards[cardId])}
+                    onRename={handleRenameColumn}
+                    onAddCard={handleAddCard}
+                    onDeleteCard={handleDeleteCard}
+                    onUpdateCard={handleUpdateCard}
+                    activeCardId={activeCardId}
+                    dropIndicatorIndex={
+                      dropTarget?.columnId === column.id
+                        ? dropTarget.index
+                        : null
+                    }
+                  />
+                ))}
+              </div>
+            </section>
+            <AIChatPanel onSend={handleAIChat} />
+          </div>
           <DragOverlay>
             {activeCard ? (
               <div className="w-[260px]">

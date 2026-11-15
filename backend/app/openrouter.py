@@ -13,13 +13,15 @@ class OpenRouterError(Exception):
     pass
 
 
-def request_completion(api_key: str, prompt: str) -> str:
+def request_completion(
+    api_key: str, messages: list[dict[str, str]]
+) -> str:
     request = Request(
         OPENROUTER_URL,
         data=json.dumps(
             {
                 "model": MODEL,
-                "messages": [{"role": "user", "content": prompt}],
+                "messages": messages,
             }
         ).encode(),
         headers={

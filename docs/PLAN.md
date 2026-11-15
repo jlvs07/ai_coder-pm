@@ -198,43 +198,43 @@ Criterio de éxito:
 
 ## Fase 9: Integración de IA con el estado del tablero y salidas estructuradas
 
-- [ ] Enviar al modelo el JSON del tablero actual junto con la pregunta del usuario y el historial de conversación.
-- [ ] Definir un esquema de respuesta estructurada para la IA que incluya:
+- [x] Enviar al modelo el JSON del tablero actual junto con la pregunta del usuario y el historial de conversación.
+- [x] Definir un esquema de respuesta estructurada para la IA que incluya:
   - respuesta textual al usuario
   - actualización opcional del tablero
-  - cambios de columnas o tarjetas
-- [ ] Validar que la IA responde con una estructura clara y procesable.
-- [ ] Implementar la lógica para aplicar actualizaciones del tablero cuando la IA las propone.
-- [ ] Capturar y registrar respuestas inválidas o incompletas para evitar corrupción del estado.
-- [ ] Ejecutar pruebas exhaustivas del flujo de IA.
+  - acciones para renombrar columnas y crear, editar, mover o borrar tarjetas
+- [x] Validar que la IA responde con una estructura clara y procesable.
+- [x] Implementar la lógica para aplicar actualizaciones del tablero cuando la IA las propone.
+- [x] Capturar y registrar respuestas inválidas o incompletas para evitar corrupción del estado.
+- [x] Ejecutar pruebas del flujo de IA, incluyendo persistencia y errores.
 
 Pruebas y validación:
-- La IA puede responder a una solicitud de edición del Kanban.
-- La respuesta tiene formato estructurado y es parseable.
-- Si la IA devuelve una actualización válida, se refleja en la UI.
-- Si la respuesta no es válida, el sistema no rompe el tablero.
+- [x] Una solicitud real para crear una tarjeta produjo una respuesta estructurada válida y se aplicó en una base SQLite temporal con el modelo `inclusionai/ling-3.2-flash:free` el 15/11/2026.
+- [x] Las pruebas automatizadas verifican el envío del tablero e historial, las cinco acciones Kanban, la persistencia y el rechazo de respuestas inválidas sin mutar el tablero.
+- [x] Cuando una actualización es válida, la API devuelve el `BoardData` actualizado para que la interfaz lo sincronice; la conexión de esa respuesta con la UI corresponde al paso 10.
+- [x] Si la respuesta no es válida, la API devuelve un error y el tablero permanece intacto.
 
 Criterio de éxito:
-- La IA puede operar sobre el tablero con salida estructurada y cambios controlados.
+- [x] Validado: la IA puede operar sobre el tablero con salida estructurada y cambios controlados.
 
 ---
 
 ## Fase 10: Widget lateral de chat con IA y sincronización del Kanban
 
-- [ ] Añadir un panel lateral atractivo con chat para el usuario.
-- [ ] Permitir enviar mensajes al backend con el context del tablero actual y el historial de conversación.
-- [ ] Mostrar la respuesta de la IA en la interfaz.
-- [ ] Si la IA propone cambios al Kanban, aplicarlos automáticamente en la UI.
-- [ ] Mantener sincronizado el estado del tablero con la respuesta del modelo.
-- [ ] Ejecutar pruebas de UI y de integración junto con el flujo de IA.
+- [x] Añadir un panel lateral con chat para el usuario.
+- [x] Permitir enviar mensajes al backend con el contexto del tablero actual y el historial de conversación.
+- [x] Mostrar la respuesta de la IA en la interfaz.
+- [x] Si la IA propone cambios al Kanban, aplicarlos automáticamente en la UI solo tras una respuesta satisfactoria.
+- [x] Mantener sincronizado el estado del tablero con la respuesta del modelo.
+- [x] Ejecutar pruebas de UI y E2E para el flujo de chat y sincronización.
 
 Pruebas y validación:
-- El usuario puede iniciar conversación con la IA desde la barra lateral.
-- La UA del sistema refleja cambios del Kanban provocados por la respuesta del modelo.
-- El usuario puede seguir usando el tablero sin inconsistencias.
+- [x] La prueba E2E envía un mensaje desde el panel, verifica el historial y refleja la respuesta y el tablero devuelto por la API.
+- [x] Las pruebas unitarias verifican el envío de historial, la sincronización del tablero actualizado y la presentación de errores sin cambios locales falsos.
+- [x] Cypress en contenedor: 8 pruebas E2E pasan; `npm test`, `npm run lint` y `npm run build` pasan.
 
 Criterio de éxito:
-- La aplicación completa cumple el flujo de trabajo del MVP: login, tablero persistente, IA con chat y actualizaciones automáticas del Kanban.
+- [x] Validado: la aplicación ofrece el flujo de chat IA desde la interfaz y sincroniza los cambios confirmados del Kanban.
 
 ---
 

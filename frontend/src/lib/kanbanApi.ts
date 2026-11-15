@@ -79,3 +79,19 @@ export const saveCardOrder = (board: BoardData) =>
       }),
     }
   );
+
+export type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+export type BoardChatResponse = {
+  reply: string;
+  board: BoardData | null;
+};
+
+export const sendBoardChat = (message: string, history: ChatMessage[]) =>
+  request<BoardChatResponse>(`/api/boards/${encodeURIComponent(username)}/chat`, {
+    method: "POST",
+    body: JSON.stringify({ message, history }),
+  });
