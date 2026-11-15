@@ -22,16 +22,39 @@ services:
       timeout: 3s
       retries: 5
 
+  api-e2e:
+    profiles:
+      - e2e
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    env_file:
+      - .env
+    environment:
+      DATABASE_PATH: /tmp/kanban-e2e.db
+    tmpfs:
+      - /tmp
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
   cypress:
+    profiles:
+      - e2e
     image: cypress/included:13.13.1
-    container_name: kanban-cypress
     depends_on:
-      api:
+      api-e2e:
         condition: service_healthy
     working_dir: /e2e
     volumes:
       - ./frontend:/e2e
-    command: npx cypress run --browser electron --config baseUrl=http://api:8000
+    command: npx cypress run --browser electron --config baseUrl=http://api-e2e:8000
 
 volumes:
   kanban_data:

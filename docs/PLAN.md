@@ -240,16 +240,18 @@ Criterio de éxito:
 
 ## Validación final del proyecto
 
-- [ ] Ejecutar la batería completa de pruebas: frontend, backend, integración y E2E.
-- [ ] Validar el arranque completo con Docker y scripts de entorno.
-- [ ] Revisar que no haya errores funcionales ni de integridad en el flujo completo.
-- [ ] Confirmar que la aplicación queda lista para demostra el MVP en local.
+- [x] Ejecutar la batería completa de pruebas: frontend, backend, integración y E2E.
+- [x] Validar el arranque completo con Docker y el script Linux.
+- [x] Revisar el flujo de login, tablero persistente, operaciones Kanban y chat sin errores funcionales.
+- [x] Confirmar que la aplicación queda lista para demostrar el MVP en local.
 
 Pruebas finales:
-- `npm run test` en frontend
-- `pytest` en backend
-- pruebas de Docker y arranque local
-- verificación del flujo de login, tablero y chat IA
+- [x] `npm test`, `npm run lint` y `npm run build` en `frontend/`.
+- [x] `python3 -m pytest` en `backend/`: 15 pruebas pasan.
+- [x] `docker compose config --quiet`, `./scripts/start.sh`, `GET /health` y `GET /` con HTTP 200.
+- [x] `docker compose --profile e2e run --rm cypress`: 8 pruebas E2E pasan.
+- [x] La suite E2E usa un servicio API con SQLite temporal en `/tmp`, separado del volumen persistente de la aplicación.
+- [x] Se verificó que el tablero persistente mantiene sus ocho tarjetas de ejemplo y su orden inicial después de la suite E2E aislada.
 
 Criterio final de éxito:
-- La aplicación queda funcionando localmente como MVP con autenticación simulada, persistencia, tablero Kanban y asistente de IA integrado.
+- [x] Validado: la aplicación funciona localmente como MVP con autenticación simulada, persistencia, tablero Kanban y asistente de IA integrado.
