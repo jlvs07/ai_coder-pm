@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import type { BoardData } from "@/lib/kanban";
 import type { ChatMessage } from "@/lib/kanbanApi";
+import { SendIcon } from "@/components/Icons";
 
 type AIChatPanelProps = {
   onSend: (
@@ -40,7 +41,7 @@ export const AIChatPanel = ({ onSend }: AIChatPanelProps) => {
       setError(
         cause instanceof Error
           ? cause.message
-          : "The AI assistant could not complete the request."
+          : "El asistente no pudo completar la solicitud."
       );
     } finally {
       setIsSending(false);
@@ -54,29 +55,29 @@ export const AIChatPanel = ({ onSend }: AIChatPanelProps) => {
     >
       <header className="border-b border-[var(--stroke)] bg-[var(--navy-dark)] px-5 py-5 text-white">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/65">
-          Kanban Studio
+          Estudio Kanban
         </p>
         <h2
           id="ai-chat-title"
           className="mt-1 font-display text-xl font-semibold"
         >
-          AI assistant
+          Asistente IA
         </h2>
         <p className="mt-2 text-sm leading-5 text-white/75">
-          Ask questions or request changes to your board.
+          Haz preguntas o pide cambios en tu tablero.
         </p>
       </header>
 
       <div
-        aria-label="Conversation"
+        aria-label="Conversación"
         aria-live="polite"
         className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto p-4"
         role="log"
       >
         {messages.length === 0 ? (
           <p className="my-auto rounded-2xl bg-[var(--surface)] p-4 text-sm leading-6 text-[var(--gray-text)]">
-            Your current board is included as context. For example, ask me to
-            create a card, move a task, or rename a column.
+            Tu tablero actual se incluye como contexto. Por ejemplo, pídeme crear
+            una tarjeta, mover una tarea o renombrar una columna.
           </p>
         ) : (
           messages.map((message, index) => (
@@ -89,7 +90,7 @@ export const AIChatPanel = ({ onSend }: AIChatPanelProps) => {
               }
             >
               <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.15em] opacity-70">
-                {message.role === "user" ? "You" : "AI assistant"}
+                {message.role === "user" ? "Tú" : "Asistente IA"}
               </p>
               <p className="whitespace-pre-wrap">{message.content}</p>
             </div>
@@ -97,7 +98,7 @@ export const AIChatPanel = ({ onSend }: AIChatPanelProps) => {
         )}
         {isSending && (
           <p className="text-sm text-[var(--gray-text)]" role="status">
-            Assistant is thinking...
+            El asistente está pensando...
           </p>
         )}
       </div>
@@ -116,7 +117,7 @@ export const AIChatPanel = ({ onSend }: AIChatPanelProps) => {
             className="sr-only"
             htmlFor="ai-chat-message"
           >
-            Message the AI assistant
+            Escribe al asistente IA
           </label>
           <textarea
             id="ai-chat-message"
@@ -124,15 +125,16 @@ export const AIChatPanel = ({ onSend }: AIChatPanelProps) => {
             disabled={isSending}
             maxLength={4000}
             onChange={(event) => setDraft(event.target.value)}
-            placeholder="Ask the assistant..."
+            placeholder="Pregunta al asistente..."
             value={draft}
           />
           <button
-            className="w-full rounded-full bg-[var(--secondary-purple)] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-[var(--secondary-purple)] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
             disabled={isSending || !draft.trim()}
             type="submit"
           >
-            {isSending ? "Sending..." : "Send message"}
+            <SendIcon />
+            {isSending ? "Enviando..." : "Enviar mensaje"}
           </button>
         </form>
       </div>

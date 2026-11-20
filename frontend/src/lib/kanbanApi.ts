@@ -16,7 +16,7 @@ const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
     const body = await response.json().catch(() => null);
     const detail =
       typeof body?.detail === "string" ? body.detail : response.statusText;
-    throw new Error(`API request failed (${response.status}): ${detail}`);
+    throw new Error(`La solicitud falló (${response.status}): ${detail}`);
   }
 
   if (response.status === 204) {

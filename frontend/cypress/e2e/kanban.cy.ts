@@ -127,9 +127,9 @@ describe("Kanban board", () => {
   it("logs in, preserves the session after reload, and logs out", () => {
     login();
 
-    cy.contains("h1", "Kanban Studio").should("be.visible");
+    cy.contains("h1", "Estudio Kanban").should("be.visible");
     cy.reload();
-    cy.contains("h1", "Kanban Studio").should("be.visible");
+    cy.contains("h1", "Estudio Kanban").should("be.visible");
     cy.contains("button", "Cerrar sesión").click();
     cy.contains("h1", "Inicia sesión").should("be.visible");
     cy.get('[data-testid^="column-"]').should("not.exist");
@@ -138,7 +138,7 @@ describe("Kanban board", () => {
   it("loads the Kanban board and shows the expected columns", () => {
     login();
 
-    cy.contains("h1", "Kanban Studio").should("be.visible");
+    cy.contains("h1", "Estudio Kanban").should("be.visible");
     cy.get('[data-testid^="column-"]').should("have.length", 5);
     cy.get('[data-testid="card-card-1"]').should("contain", "Align roadmap themes");
   });
@@ -150,10 +150,10 @@ describe("Kanban board", () => {
     );
 
     cy.get('[data-testid^="column-"]').first().within(() => {
-      cy.contains("button", "Add a card").click();
-      cy.get('input[placeholder="Card title"]').type("Cypress persisted card");
-      cy.get('textarea[placeholder="Details"]').type("Added via Cypress");
-      cy.contains("button", "Add card").click();
+      cy.contains("button", "Añadir una tarjeta").click();
+      cy.get('input[placeholder="Título de la tarjeta"]').type("Cypress persisted card");
+      cy.get('textarea[placeholder="Detalles"]').type("Added via Cypress");
+      cy.contains("button", "Crear tarjeta").click();
     });
     cy.wait("@createCard").its("response.statusCode").should("eq", 201);
     cy.contains("Cypress persisted card").should("be.visible");
@@ -161,7 +161,7 @@ describe("Kanban board", () => {
     cy.contains("Cypress persisted card").should("be.visible");
     cy.get('[data-testid^="column-"]')
       .first()
-      .find('[aria-label="Delete Cypress persisted card"]')
+      .find('[aria-label="Eliminar Cypress persisted card"]')
       .click();
     cy.contains("Cypress persisted card").should("not.exist");
   });
@@ -173,7 +173,7 @@ describe("Kanban board", () => {
     );
 
     cy.get('[data-testid^="column-"]').first().within(() => {
-      cy.get('input[aria-label="Column title"]')
+      cy.get('input[aria-label="Título de la columna"]')
         .clear()
         .type("Sprint board")
         .blur();
@@ -195,14 +195,14 @@ describe("Kanban board", () => {
     cy.intercept("PATCH", "/api/boards/usuario/cards/card-1").as("updateCard");
 
     cy.get('[data-testid="card-card-1"]')
-      .find('[aria-label="Edit Align roadmap themes"]')
+      .find('[aria-label="Editar Align roadmap themes"]')
       .click();
     cy.get('[data-testid="card-card-1"]')
-      .find('input[aria-label="Card title"]')
+      .find('input[aria-label="Título de la tarjeta"]')
       .clear()
       .type("Updated roadmap");
     cy.get('[data-testid="card-card-1"]')
-      .contains("button", "Save changes")
+      .contains("button", "Guardar cambios")
       .click();
     cy.wait("@updateCard").its("response.statusCode").should("eq", 200);
     cy.contains("Updated roadmap").should("be.visible");
@@ -230,7 +230,7 @@ describe("Kanban board", () => {
 
     login();
     cy.get("#ai-chat-message").type("Create a task in Backlog");
-    cy.contains("button", "Send message").click();
+    cy.contains("button", "Enviar mensaje").click();
 
     cy.wait("@aiChat").then(({ request }) => {
       expect(request.body).to.deep.equal({

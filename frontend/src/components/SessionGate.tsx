@@ -6,6 +6,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
+import { LogoutIcon } from "@/components/Icons";
 
 const SESSION_KEY = "kanban-mvp-session";
 const SESSION_EVENT = "kanban-session-change";
@@ -62,8 +63,9 @@ export const SessionGate = ({ children }: SessionGateProps) => {
           <button
             type="button"
             onClick={handleLogout}
-            className="rounded-full border border-[var(--stroke)] bg-white px-4 py-2 text-sm font-semibold text-[var(--navy-dark)] transition hover:border-[var(--primary-blue)]"
+            className="flex items-center gap-2 rounded-full border border-[var(--stroke)] bg-white px-4 py-2 text-sm font-semibold text-[var(--navy-dark)] transition hover:border-[var(--primary-blue)]"
           >
+            <LogoutIcon />
             Cerrar sesión
           </button>
         </div>
@@ -76,7 +78,7 @@ export const SessionGate = ({ children }: SessionGateProps) => {
     <main className="flex min-h-screen items-center justify-center bg-[var(--surface)] px-6 py-12">
       <section className="w-full max-w-md rounded-[32px] border border-[var(--stroke)] bg-white/90 p-8 shadow-[var(--shadow)]">
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[var(--gray-text)]">
-          Kanban Studio
+          Estudio Kanban
         </p>
         <h1 className="mt-3 font-display text-3xl font-semibold text-[var(--navy-dark)]">
           Inicia sesión

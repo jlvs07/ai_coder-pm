@@ -70,7 +70,7 @@ export const KanbanColumn = ({
           <div className="flex items-center gap-3">
             <div className="h-2 w-10 rounded-full bg-[var(--accent-yellow)]" />
             <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gray-text)]">
-              {cards.length} cards
+              {cards.length} {cards.length === 1 ? "tarjeta" : "tarjetas"}
             </span>
           </div>
           <input
@@ -87,7 +87,7 @@ export const KanbanColumn = ({
               }
             }}
             className="mt-3 w-full bg-transparent font-display text-lg font-semibold text-[var(--navy-dark)] outline-none"
-            aria-label="Column title"
+            aria-label="Título de la columna"
           />
         </div>
       </div>
@@ -97,7 +97,7 @@ export const KanbanColumn = ({
             <div className="flex flex-1 items-center justify-center rounded-2xl border border-dashed border-[var(--stroke)] px-3 py-6 text-center text-xs font-semibold uppercase tracking-[0.2em] text-[var(--gray-text)]">
               <div className="w-full space-y-3">
                 {indicatorSlot === 0 && dropIndicator}
-                <span>Drop a card here</span>
+                <span>Arrastra una tarjeta aquí</span>
               </div>
             </div>
           ) : (

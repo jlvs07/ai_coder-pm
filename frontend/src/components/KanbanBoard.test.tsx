@@ -62,7 +62,7 @@ describe("KanbanBoard", () => {
     const user = userEvent.setup();
     render(<KanbanBoard />);
     const column = await screen.findAllByTestId(/column-/i).then((items) => items[0]);
-    const input = within(column).getByLabelText("Column title");
+    const input = within(column).getByLabelText("Título de la columna");
 
     await user.clear(input);
     await user.type(input, "New Name");
@@ -83,11 +83,11 @@ describe("KanbanBoard", () => {
     const column = await screen.findAllByTestId(/column-/i).then((items) => items[0]);
 
     await user.click(
-      within(column).getByRole("button", { name: /add a card/i })
+      within(column).getByRole("button", { name: /añadir una tarjeta/i })
     );
-    await user.type(within(column).getByPlaceholderText("Card title"), "New card");
-    await user.type(within(column).getByPlaceholderText("Details"), "Notes");
-    await user.click(within(column).getByRole("button", { name: /add card/i }));
+    await user.type(within(column).getByPlaceholderText("Título de la tarjeta"), "New card");
+    await user.type(within(column).getByPlaceholderText("Detalles"), "Notes");
+    await user.click(within(column).getByRole("button", { name: "Crear tarjeta" }));
 
     expect(await within(column).findByText("New card")).toBeVisible();
     expect(kanbanApi.createCard).toHaveBeenCalledWith(
@@ -97,7 +97,7 @@ describe("KanbanBoard", () => {
     );
 
     await user.click(
-      within(column).getByRole("button", { name: "Delete New card" })
+      within(column).getByRole("button", { name: "Eliminar New card" })
     );
     await waitFor(() => {
       expect(kanbanApi.deleteCard).toHaveBeenCalledWith("card-new");
@@ -110,14 +110,14 @@ describe("KanbanBoard", () => {
     render(<KanbanBoard />);
     await screen.findByText("Align roadmap themes");
     await user.click(
-      screen.getByRole("button", { name: "Edit Align roadmap themes" })
+      screen.getByRole("button", { name: "Editar Align roadmap themes" })
     );
-    await user.clear(screen.getByRole("textbox", { name: "Card title" }));
+    await user.clear(screen.getByRole("textbox", { name: "Título de la tarjeta" }));
     await user.type(
-      screen.getByRole("textbox", { name: "Card title" }),
+      screen.getByRole("textbox", { name: "Título de la tarjeta" }),
       "Updated roadmap"
     );
-    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    await user.click(screen.getByRole("button", { name: "Guardar cambios" }));
 
     expect(await screen.findByText("Updated roadmap")).toBeVisible();
     expect(kanbanApi.updateCard).toHaveBeenCalledWith(
@@ -144,21 +144,21 @@ describe("KanbanBoard", () => {
     render(<KanbanBoard />);
     await screen.findByText("Align roadmap themes");
     const input = screen.getByRole("textbox", {
-      name: "Message the AI assistant",
+      name: "Escribe al asistente IA",
     });
 
     await user.type(input, "Rename the roadmap card");
-    await user.click(screen.getByRole("button", { name: "Send message" }));
+    await user.click(screen.getByRole("button", { name: "Enviar mensaje" }));
 
     expect(await screen.findByText("AI updated roadmap")).toBeVisible();
     expect(await screen.findByText("I will update that card.")).toBeVisible();
     await user.click(
-      screen.getByRole("button", { name: "Edit AI updated roadmap" })
+      screen.getByRole("button", { name: "Editar AI updated roadmap" })
     );
-    expect(screen.getByRole("textbox", { name: "Card title" })).toHaveValue(
+    expect(screen.getByRole("textbox", { name: "Título de la tarjeta" })).toHaveValue(
       "AI updated roadmap"
     );
-    await user.click(screen.getByRole("button", { name: "Cancel" }));
+    await user.click(screen.getByRole("button", { name: "Cancelar" }));
     expect(kanbanApi.sendBoardChat).toHaveBeenNthCalledWith(
       1,
       "Rename the roadmap card",
@@ -166,7 +166,7 @@ describe("KanbanBoard", () => {
     );
 
     await user.type(input, "What changed?");
-    await user.click(screen.getByRole("button", { name: "Send message" }));
+    await user.click(screen.getByRole("button", { name: "Enviar mensaje" }));
 
     expect(await screen.findByText("The update is complete.")).toBeVisible();
     expect(kanbanApi.sendBoardChat).toHaveBeenNthCalledWith(
@@ -188,10 +188,10 @@ describe("KanbanBoard", () => {
     render(<KanbanBoard />);
     await screen.findByText("Align roadmap themes");
     await user.type(
-      screen.getByRole("textbox", { name: "Message the AI assistant" }),
+      screen.getByRole("textbox", { name: "Escribe al asistente IA" }),
       "Move a card"
     );
-    await user.click(screen.getByRole("button", { name: "Send message" }));
+    await user.click(screen.getByRole("button", { name: "Enviar mensaje" }));
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "OpenRouter unavailable"

@@ -54,6 +54,8 @@ def test_ai_connectivity_uses_configured_model_and_returns_answer(
     assert captured["request"].get_header("Authorization").startswith("Bearer ")
     assert json.loads(captured["request"].data) == {
         "model": openrouter.MODEL,
+        "models": list(openrouter.MODELS),
+        "route": "fallback",
         "messages": [{
             "role": "user",
             "content": "What is 2 + 2? Reply with only the number.",
@@ -67,11 +69,12 @@ def test_ai_connectivity_uses_configured_model_and_returns_answer(
     [
         (
             HTTPError(openrouter.OPENROUTER_URL, 429, "rate limited", {}, None),
-            "OpenRouter returned HTTP 429",
+            "El asistente está saturado en este momento. "
+            "Inténtalo de nuevo en unos minutos.",
         ),
         (
             URLError(TimeoutError()),
-            "OpenRouter request timed out",
+            "El asistente agotó el tiempo de espera.",
         ),
     ],
 )
@@ -114,7 +117,7 @@ def test_ai_connectivity_rejects_empty_response(client, monkeypatch):
     response = client.post("/api/ai/connectivity")
 
     assert response.status_code == 502
-    assert response.json()["detail"] == "OpenRouter returned an empty response"
+    assert response.json()["detail"] == "El asistente devolvió una respuesta vacía."
 
 
 def test_board_chat_sends_context_and_applies_valid_actions(client, monkeypatch):

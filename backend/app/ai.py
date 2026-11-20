@@ -10,6 +10,7 @@ from app.ai_actions import AIResponse, AIResponseError, BoardChatRequest
 logger = logging.getLogger(__name__)
 
 SYSTEM_PROMPT = """You are an assistant for a Kanban board. Use the user's request and current board data to answer.
+Always write the reply in Spanish.
 Return exactly one JSON object with this shape:
 {"reply":"text for the user","board_update":null}
 When changes are requested, set board_update to {"actions":[...]}.

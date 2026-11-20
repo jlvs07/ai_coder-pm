@@ -5,6 +5,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import clsx from "clsx";
 import type { Card } from "@/lib/kanban";
+import { EditIcon, TrashIcon } from "@/components/Icons";
 
 type KanbanCardProps = {
   card: Card;
@@ -61,48 +62,50 @@ export const KanbanCard = ({ card, onDelete, onUpdate }: KanbanCardProps) => {
       {isEditing ? (
         <form className="space-y-3" onSubmit={handleUpdate}>
           <input
-            aria-label="Card title"
+            aria-label="Título de la tarjeta"
             className="w-full rounded-lg border border-[var(--stroke)] px-3 py-2 text-sm"
             onChange={(event) => setTitle(event.target.value)}
             required
             value={title}
           />
           <textarea
-            aria-label="Card details"
+            aria-label="Detalles de la tarjeta"
             className="w-full rounded-lg border border-[var(--stroke)] px-3 py-2 text-sm"
             onChange={(event) => setDetails(event.target.value)}
             rows={3}
             value={details}
           />
-          <button
-            type="submit"
-            className="rounded-full bg-[var(--secondary-purple)] px-3 py-2 text-xs font-semibold text-white"
-          >
-            Save changes
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setTitle(card.title);
-              setDetails(card.details);
-              setIsEditing(false);
-            }}
-            className="ml-2 rounded-full border border-[var(--stroke)] px-3 py-2 text-xs font-semibold text-[var(--gray-text)]"
-          >
-            Cancel
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="submit"
+              className="rounded-full bg-[var(--secondary-purple)] px-3 py-2 text-xs font-semibold text-white"
+            >
+              Guardar cambios
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setTitle(card.title);
+                setDetails(card.details);
+                setIsEditing(false);
+              }}
+              className="rounded-full border border-[var(--stroke)] px-3 py-2 text-xs font-semibold text-[var(--gray-text)]"
+            >
+              Cancelar
+            </button>
+          </div>
         </form>
       ) : (
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h4 className="font-display text-base font-semibold text-[var(--navy-dark)]">
+        <div className="flex items-start gap-2">
+          <div className="min-w-0 flex-1">
+            <h4 className="break-words font-display text-base font-semibold text-[var(--navy-dark)]">
               {card.title}
             </h4>
-            <p className="mt-2 text-sm leading-6 text-[var(--gray-text)]">
+            <p className="mt-1.5 break-words text-sm leading-6 text-[var(--gray-text)]">
               {card.details}
             </p>
           </div>
-          <div className="flex shrink-0 flex-col items-end gap-1">
+          <div className="flex shrink-0 items-center gap-0.5">
             <button
               type="button"
               onClick={() => {
@@ -110,18 +113,20 @@ export const KanbanCard = ({ card, onDelete, onUpdate }: KanbanCardProps) => {
                 setDetails(card.details);
                 setIsEditing(true);
               }}
-              className="rounded-full border border-transparent px-2 py-1 text-xs font-semibold text-[var(--primary-blue)] transition hover:border-[var(--stroke)]"
-              aria-label={`Edit ${card.title}`}
+              className="rounded-lg border border-transparent p-2 text-[var(--primary-blue)] transition hover:border-[var(--stroke)] hover:bg-[var(--surface)]"
+              aria-label={`Editar ${card.title}`}
+              title="Editar tarjeta"
             >
-              Edit
+              <EditIcon />
             </button>
             <button
               type="button"
               onClick={() => void onDelete(card.id)}
-              className="rounded-full border border-transparent px-2 py-1 text-xs font-semibold text-[var(--gray-text)] transition hover:border-[var(--stroke)] hover:text-[var(--navy-dark)]"
-              aria-label={`Delete ${card.title}`}
+              className="rounded-lg border border-transparent p-2 text-[var(--gray-text)] transition hover:border-[var(--stroke)] hover:bg-red-50 hover:text-red-600"
+              aria-label={`Eliminar ${card.title}`}
+              title="Eliminar tarjeta"
             >
-              Remove
+              <TrashIcon />
             </button>
           </div>
         </div>

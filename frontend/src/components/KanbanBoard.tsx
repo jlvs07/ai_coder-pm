@@ -312,7 +312,7 @@ export const KanbanBoard = () => {
       return false;
     }
     return runMutation(async () => {
-      const card = await createCard(columnId, title, details || "No details yet.");
+      const card = await createCard(columnId, title, details || "Sin detalles.");
       setBoard((current) =>
         current
           ? {
@@ -429,22 +429,22 @@ export const KanbanBoard = () => {
           <div className="flex flex-wrap items-start justify-between gap-6">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--gray-text)]">
-                Single Board Kanban
+                Tablero único
               </p>
               <h1 className="mt-3 font-display text-4xl font-semibold text-[var(--navy-dark)]">
-                Kanban Studio
+                Estudio Kanban
               </h1>
               <p className="mt-3 max-w-xl text-sm leading-6 text-[var(--gray-text)]">
-                Keep momentum visible. Rename columns, drag cards between stages,
-                and capture quick notes without getting buried in settings.
+                Mantén el avance a la vista. Renombra columnas, arrastra tarjetas
+                entre etapas y captura notas rápidas sin perderte en ajustes.
               </p>
             </div>
             <div className="rounded-2xl border border-[var(--stroke)] bg-[var(--surface)] px-5 py-4">
               <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[var(--gray-text)]">
-                Focus
+                Enfoque
               </p>
               <p className="mt-2 text-lg font-semibold text-[var(--primary-blue)]">
-                One board. Five columns. Zero clutter.
+                Un tablero. Cinco columnas. Sin ruido.
               </p>
             </div>
           </div>
@@ -474,9 +474,9 @@ export const KanbanBoard = () => {
             overRef.current = null;
           }}
         >
-          <div className="grid items-stretch gap-6 2xl:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="grid items-stretch gap-6 2xl:grid-cols-[minmax(0,1fr)_340px]">
             <section className="min-w-0 overflow-x-auto pb-2">
-              <div className="grid min-w-[280px] gap-6 sm:min-w-[520px] sm:grid-cols-2 lg:min-w-[1000px] lg:grid-cols-5 2xl:min-w-[1100px]">
+              <div className="grid min-w-0 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                 {board.columns.map((column) => (
                   <KanbanColumn
                     key={`${column.id}-${column.title}`}
